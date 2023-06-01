@@ -6,7 +6,7 @@
 #include <iostream>
 #include <stdexcept> /* exceptions */
 
-#define MAX_SIZE 15;
+#define MAX_SIZE 15
 
 template <typename T> class Tree {
 private:
@@ -26,7 +26,8 @@ public:
       row_count++;
       if (row_count == next_break) {
         os << '\n';
-        next_break *= 2; row_count = 0;
+        next_break *= 2;
+        row_count = 0;
       }
     }
     return os;
