@@ -42,10 +42,16 @@ public:
   };
 
   T get(int index) {
-    if (index >= max_size) {
+    if (index > max_size) {
       throw std::invalid_argument("Index out of bounds.");
     }
     return container[index];
+  }
+  void set(int index, T item) {
+    if (index > max_size) {
+      throw std::invalid_argument("[Tree-Set] Index out of bound");
+    }
+    container[index] = item;
   }
 
   T get_parent(int index) {
@@ -58,6 +64,17 @@ public:
     } else {
       return this->container[index / 2];
     }
+  }
+
+  std::pair<T, T> get_children(int index) {
+    if (floor(std::log2(index)) == floor(std::log2(max_size)) + 1) {
+      throw std::invalid_argument("No children for leaf node");
+    }
+    std::pair<T, T> children;
+    T left_child = this->get(2 * index);
+    T right_child = this->get(2 * index + 1);
+    children = std::make_pair(left_child, right_child);
+    return children;
   }
 };
 

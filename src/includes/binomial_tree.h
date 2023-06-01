@@ -7,18 +7,20 @@
 namespace BinomialTree {
 
 struct Config {
-  float up_factor;
-  float down_factor;
-  float market_probability;
-  float risk_neutral_probability;
-  float risk_free_interest;
-  float initial_price;
+  double up_factor;
+  double down_factor;
+  double market_probability;
+  double risk_neutral_probability;
+  double risk_free_interest;
+  double initial_price;
   int steps;
+  double strike_price;
 }; // namespace Config
 
 struct Config DEFAULT_CONFIG {
   .up_factor = 1.2, .down_factor = 0.8, .market_probability = 0.6,
-  .risk_free_interest = 0.02, .initial_price = 100, .steps = 4
+  .risk_free_interest = 0.02, .initial_price = 100, .steps = 4,
+  .strike_price = 110
 };
 
 class Model {
@@ -50,17 +52,43 @@ private:
     }
   }
 
+  void build_option_tree() {
+    for (int i = std::pow(2, parameters.steps - 1) - 1;
+         i < pow(2, parameters.steps); ++i) {
+      double cur_opt_val =
+          std::max(0.0, (*stock_price_tree).get(i) - parameters.strike_price);
+      (*option_value_tree).set(i, cur_opt_val);
+    }
+
+    for (int i = std::pow(2, parameters.steps - 1) - 2; i >= 0; --i) {
+      std::pair<double, double> next_values =
+          (*option_value_tree).get_children(i);
+      double early_excercise_value =
+          std::max(0.0, (*stock_price_tree).get(i) - parameters.strike_price);
+      double expectation_value =
+          std::exp(-parameters.risk_free_interest) *
+          (risk_neutral_probability * next_values.second +
+           (1 - risk_neutral_probability) * next_values.first);
+      (*option_value_tree)
+          .set(i, std::max(early_excercise_value, expectation_value));
+    }
+  }
+
 public:
   Model(Config parameters) {
     this->parameters = parameters;
     this->stock_price_tree = new Tree<double>();
     this->option_value_tree = new Tree<double>();
+  };
+
+  void _exec() {
     // Compute risk neutral prob
     calculuate_risk_neutal_probability();
     // Build the price tree
     this->build_price_tree();
-    std::cout << *stock_price_tree;
-  };
+    this->build_option_tree();
+    printf("-- Current Value Of Call Option = %f\n", (*option_value_tree).get(0));
+  }
 };
 
 } // namespace BinomialTree

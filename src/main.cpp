@@ -28,4 +28,5 @@ int main() {
   std::cout << "Hello World!\n";
   BinomialTree::Config config = build_config();
   BinomialTree::Model model(config);
+  model._exec();
 }
