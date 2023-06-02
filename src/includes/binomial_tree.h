@@ -42,8 +42,8 @@ struct Config DEFAULT_CONFIG {
  */
 class Model {
 private:
-  Tree<double> *stock_price_tree;  /* future price movement of stock */
-  Tree<double> *option_value_tree; /* future option value */
+  Tree::BTree<double> *stock_price_tree;  /* future price movement of stock */
+  Tree::BTree<double> *option_value_tree; /* future option value */
   Config       parameters; /* market parameters */
   float        risk_neutral_probability = 0;
 
@@ -97,9 +97,9 @@ public:
   Model(Config parameters) {
     this->parameters = parameters;
     this->stock_price_tree =
-        new Tree<double>((int)std::pow(2, this->parameters.steps) - 1);
+        new Tree::BTree<double>((int)std::pow(2, this->parameters.steps) - 1);
     this->option_value_tree =
-        new Tree<double>((int)std::pow(2, this->parameters.steps) - 1);
+        new Tree::BTree<double>((int)std::pow(2, this->parameters.steps) - 1);
   };
 
   void run() {
